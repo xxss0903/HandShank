@@ -52,37 +52,38 @@ cc.Class({
 
     // use this for initialization
     up: function (socket) {
+        let self = this
         if (!self.canPressShoot) {
             return
         }
         console.log('向上移动 ' + socket.id)
-        let self = this
         self.socket.emit('handplay', self.getMoveInfo("up"));
     },
     down: function (socket) {
+        let self = this
         if (!self.canPressShoot) {
             return
         }
         console.log('向下移动 ' + socket.id)
-        let self = this
         self.socket.emit('handplay', self.getMoveInfo("down"));
 
     },
     left: function (socket) {
+        
+        let self = this
         if (!self.canPressShoot) {
             return
         }
         console.log('向左移动 ' + socket.id)
-        let self = this
         self.socket.emit('handplay', self.getMoveInfo("left"));
 
     },
     right: function (socket) {
+        let self = this
         if (!self.canPressShoot) {
             return
         }
         console.log('向右移动 ' + socket.id)
-        let self = this
         self.socket.emit('handplay', self.getMoveInfo("right"));
 
     },

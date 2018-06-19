@@ -69,14 +69,14 @@ cc.Class({
 
     },
     left: function (socket) {
-        
+
         let self = this
         if (!self.canPressShoot) {
             return
         }
         console.log('向左移动 ' + socket.id)
-        self.socket.emit('handplay', self.getMoveInfo("left"));
-
+        // self.socket.emit('handplay', self.getMoveInfo("left"));
+        self.moveLeft();
     },
     right: function (socket) {
         let self = this
@@ -84,16 +84,42 @@ cc.Class({
             return
         }
         console.log('向右移动 ' + socket.id)
-        self.socket.emit('handplay', self.getMoveInfo("right"));
-
+        // self.socket.emit('handplay', self.getMoveInfo("right"));
+        self.moveRight();
     },
+
+    moveLeft: function(){
+        let self = this;
+        G.roomsocket.emit('control', self.getMoveInfo("left"));
+    },
+
+    moveRight: function(){
+        let self = this;
+        G.roomsocket.emit('control', self.getMoveInfo("right"));
+    },
+
+    emitShoot: function () {
+        let self = this;
+        self.socket.emit('handplay', self.getMoveInfo("press"));
+        // 给房间发送通知
+        G.roomsocket.emit('control', self.getMoveInfo("press"));
+        self.isStartPress = false;
+        // 设计完成，让下次不能再射击
+        self.canPressShoot = false;
+        self.hidePowerBar();
+        // 计时3秒后才能点击
+        self.schedule(function () {
+            self.canPressShoot = true;
+        }, 3, 0);
+    },
+
     press: function (socket) {
         let self = this
-        console.log('发射 ' + socket.id)
         self.btn_press.node.on('touchstart', function (event) {
             if (!self.canPressShoot) {
                 return
             }
+            self.showPowerBar();
             self.isStartPress = true;
             self.isPressing = true;
             self.pressStart = Date.now;
@@ -107,12 +133,21 @@ cc.Class({
             self.pressEnd = Date.now;
             if (self.isStartPress) {
                 console.log('结束点击: ' + self.pressEnd);
-                self.socket.emit('handplay', self.getMoveInfo("press"));
-                self.isStartPress = false;
-                // 设计完成，让下次不能再射击
-                self.canPressShoot = false;
+                self.emitShoot();
+
             }
         })
+    },
+
+    hidePowerBar: function () {
+        let self = this;
+        self.power_bar.node.active = false;
+
+    },
+
+    showPowerBar: function () {
+        let self = this;
+        self.power_bar.node.active = true;
     },
 
     resetPowerBar: function (power) {
@@ -135,7 +170,7 @@ cc.Class({
             window.io = require('socket.io');
         }
         let self = this
-        var sc = window.io('http://localhost:9999');
+        var sc = window.io('http://localhost:5757');
         self.socket = sc;
         console.log('链接上了 ' + self.socket.id + " # " + sc.id)
         self.socket.on('football', (msg) => {
@@ -155,9 +190,34 @@ cc.Class({
                     break;
             }
         })
+
+        // 进入房间
+        G.roomsocket = io.connect('http://localhost:5757/rooms11', { 'force new connection': true });
+
+        G.roomsocket.on('shootstart', function (data) {
+            console.log(data);
+        });
+
+        G.roomsocket.on('shootend', function (data) {
+            console.log(data);
+        });
+
+        G.roomsocket.on('control', function(data){
+            console.log(data);
+        })
+
+        G.roomsocket.on('disconnect', function () {
+
+        })
+    },
+
+    setupParams: function () {
+        let self = this;
+        self.hidePowerBar();
     },
 
     onLoad: function () {
+        this.setupParams();
         this.setupSocket();
     },
 

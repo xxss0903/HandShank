@@ -28,6 +28,26 @@ cc.Class({
             type: cc.ProgressBar
         },
 
+        btn_quit: {
+            default: null,
+            type: cc.Button
+        },
+
+        dialog:{
+            default: null,
+            type: cc.Layout
+        },
+
+        btn_quitgame:{
+            default: null,
+            type: cc.Button
+        },
+
+        btn_continuegame:{
+            default: null,
+            type: cc.Button
+        },
+
         // 能否点击射球，如果已经点击了，那么就不能射门了，要等这次射门完成
         canPressShoot: true,
         isStartPress: false,
@@ -88,6 +108,24 @@ cc.Class({
         self.moveRight();
     },
 
+    // 显示推出
+    quit: function(){
+        let self = this;
+        self.showDialog();
+    },
+
+    quitgame: function(){
+        let self = this;
+        self.hideDialog();
+        // 退出游戏
+    },
+
+    continuegame: function(){
+        let self = this;
+        self.hideDialog();
+    },
+
+
     moveLeft: function(){
         let self = this;
         G.roomsocket.emit('control', self.getMoveInfo("left"));
@@ -137,6 +175,7 @@ cc.Class({
 
             }
         })
+
     },
 
     hidePowerBar: function () {
@@ -192,7 +231,7 @@ cc.Class({
         })
 
         // 进入房间
-        G.roomsocket = io.connect('http://localhost:5757/rooms11', { 'force new connection': true });
+        G.roomsocket = io.connect('http://193.112.183.189:5757/rooms11', { 'force new connection': true });
 
         G.roomsocket.on('shootstart', function (data) {
             console.log(data);
@@ -216,9 +255,31 @@ cc.Class({
         self.hidePowerBar();
     },
 
+    hideDialog: function(){
+        let self = this;
+        self.btn_quitgame.node.active = false;
+        self.btn_continuegame.node.active = false;
+        self.dialog.node.active = false;
+        
+    },
+
+    showDialog: function () {
+        let self = this;
+        self.btn_quitgame.node.active = true;
+        self.btn_continuegame.node.active = true;
+        self.dialog.node.active = true;
+    },
+
+    setupViews: function(){
+        let self = this;
+        self.hideDialog();
+        console.log(self.dialog)
+    },
+
     onLoad: function () {
         this.setupParams();
         this.setupSocket();
+        this.setupViews();
     },
 
     // called every frame

@@ -12,4 +12,6 @@
 window.G = {
     roomsocket:null,
     handsocket:null,
+    // 默认是玩家1
+    player: 'player',
 }

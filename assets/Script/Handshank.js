@@ -48,6 +48,11 @@ cc.Class({
             type: cc.Button
         },
 
+        player: {
+            default: null,
+            type: cc.Label
+        },
+
         // 能否点击射球，如果已经点击了，那么就不能射门了，要等这次射门完成
         canPressShoot: true,
         isStartPress: false,
@@ -57,12 +62,13 @@ cc.Class({
         pressEnd: 0,
         maxPressDuration: 1000,
 
-        socket: {}
+        socket: null,
         // defaults, set visually when attaching this script to the Canvas
     },
 
     getMoveInfo: function (direction) {
         var param = {
+            "playername": G.player,
             "direction": direction,
             "power": this.pressPower
         };
@@ -200,6 +206,11 @@ cc.Class({
         this.power_bar.progress = power;
     },
 
+    updatePlayer: function(){
+        let self = this;
+        self.player.string = '玩家:' + G.player;
+    },
+
     setupSocket: function () {
         if (cc.sys.isNative) {
             console.log('本地socket');
@@ -209,29 +220,15 @@ cc.Class({
             window.io = require('socket.io');
         }
         let self = this
-        var sc = window.io('http://localhost:5757');
-        self.socket = sc;
-        console.log('链接上了 ' + self.socket.id + " # " + sc.id)
-        self.socket.on('football', (msg) => {
-            console.log('足球的反馈')
-        })
-
-        self.socket.on('connected', (msg) => {
-            console.log('接收到发送事件 ' + msg)
-        })
-
-        self.socket.on('handstatus', (msg) => {
-            console.log(msg);
-            var obj = JSON.parse(msg);
-            switch (obj.shootstatus) {
-                case 'end':
-                    self.canPressShoot = true;
-                    break;
-            }
-        })
-
         // 进入房间
-        G.roomsocket = io.connect('http://193.112.183.189:5757/rooms11', { 'force new connection': true });
+        // G.roomsocket = io.connect('http://193.112.183.189:5757/rooms11', { 'force new connection': true });
+        G.roomsocket = io.connect('http://127.0.0.1:5757/rooms11', { 'force new connection': true });
+        G.roomsocket.on('set player', function(data){
+            console.log('设置当前玩家')
+            console.log(data)
+            G.player = data;
+            self.updatePlayer();
+        });
 
         G.roomsocket.on('shootstart', function (data) {
             console.log(data);
@@ -248,6 +245,7 @@ cc.Class({
         G.roomsocket.on('disconnect', function () {
 
         })
+        self.socket = G.roomsocket;
     },
 
     setupParams: function () {

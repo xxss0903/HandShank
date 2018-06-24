@@ -61,7 +61,7 @@ cc.Class({
         pressStart: 0,
         pressEnd: 0,
         maxPressDuration: 1000,
-
+        pressDelay: 2,
         socket: null,
         // defaults, set visually when attaching this script to the Canvas
     },
@@ -151,10 +151,10 @@ cc.Class({
         // 设计完成，让下次不能再射击
         self.canPressShoot = false;
         self.hidePowerBar();
-        // 计时3秒后才能点击
+        // 计时pressDelay秒后才能点击
         self.schedule(function () {
             self.canPressShoot = true;
-        }, 3, 0);
+        }, self.pressDelay, 0);
     },
 
     press: function (socket) {

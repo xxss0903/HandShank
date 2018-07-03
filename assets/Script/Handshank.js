@@ -33,17 +33,17 @@ cc.Class({
             type: cc.Button
         },
 
-        dialog:{
+        dialog: {
             default: null,
             type: cc.Layout
         },
 
-        btn_quitgame:{
+        btn_quitgame: {
             default: null,
             type: cc.Button
         },
 
-        btn_continuegame:{
+        btn_continuegame: {
             default: null,
             type: cc.Button
         },
@@ -51,6 +51,27 @@ cc.Class({
         player: {
             default: null,
             type: cc.Label
+        },
+
+        btnleftup: {
+            default: null,
+            type: cc.Button
+        },
+        btnleftdown: {
+            default: null,
+            type: cc.Button
+        },
+        btnrightup: {
+            default: null,
+            type: cc.Button
+        },
+        btnrightdown: {
+            default: null,
+            type: cc.Button
+        },
+        btncenter: {
+            default: null,
+            type: cc.Button
         },
 
         // 能否点击射球，如果已经点击了，那么就不能射门了，要等这次射门完成
@@ -115,29 +136,29 @@ cc.Class({
     },
 
     // 显示推出
-    quit: function(){
+    quit: function () {
         let self = this;
         self.showDialog();
     },
 
-    quitgame: function(){
+    quitgame: function () {
         let self = this;
         self.hideDialog();
         // 退出游戏
     },
 
-    continuegame: function(){
+    continuegame: function () {
         let self = this;
         self.hideDialog();
     },
 
 
-    moveLeft: function(){
+    moveLeft: function () {
         let self = this;
         G.roomsocket.emit('control', self.getMoveInfo("left"));
     },
 
-    moveRight: function(){
+    moveRight: function () {
         let self = this;
         G.roomsocket.emit('control', self.getMoveInfo("right"));
     },
@@ -206,7 +227,7 @@ cc.Class({
         this.power_bar.progress = power;
     },
 
-    updatePlayer: function(){
+    updatePlayer: function () {
         let self = this;
         self.player.string = '玩家:' + G.player;
     },
@@ -223,7 +244,7 @@ cc.Class({
         // 进入房间
         // G.roomsocket = io.connect('http://193.112.183.189:5757/rooms11', { 'force new connection': true });
         G.roomsocket = io.connect('http://127.0.0.1:5757/rooms11', { 'force new connection': true });
-        G.roomsocket.on('set player', function(data){
+        G.roomsocket.on('set player', function (data) {
             console.log('设置当前玩家')
             console.log(data)
             G.player = data;
@@ -238,7 +259,7 @@ cc.Class({
             console.log(data);
         });
 
-        G.roomsocket.on('control', function(data){
+        G.roomsocket.on('control', function (data) {
             console.log(data);
         })
 
@@ -253,12 +274,12 @@ cc.Class({
         self.hidePowerBar();
     },
 
-    hideDialog: function(){
+    hideDialog: function () {
         let self = this;
         self.btn_quitgame.node.active = false;
         self.btn_continuegame.node.active = false;
         self.dialog.node.active = false;
-        
+
     },
 
     showDialog: function () {
@@ -268,11 +289,42 @@ cc.Class({
         self.dialog.node.active = true;
     },
 
-    setupViews: function(){
+    setupViews: function () {
         let self = this;
         self.hideDialog();
         console.log(self.dialog)
     },
+
+    leftdown: function () {
+        let self = this;
+        G.roomsocket.emit('control', self.getMoveInfo("leftdown"));
+    },
+
+    rightdown: function () {
+        let self = this;
+
+        G.roomsocket.emit('control', self.getMoveInfo("rightdown"));
+    },
+
+
+    leftup: function () {
+        let self = this;
+
+        G.roomsocket.emit('control', self.getMoveInfo("leftup"));
+    },
+
+    rightup: function () {
+        let self = this;
+
+        G.roomsocket.emit('control', self.getMoveInfo("rightup"));
+
+    },
+
+    center: function () {
+        let self = this;
+        G.roomsocket.emit('control', self.getMoveInfo("center"));
+    },
+
 
     onLoad: function () {
         this.setupParams();
